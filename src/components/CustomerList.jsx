@@ -1,12 +1,3 @@
-import React from 'react';
-
-/**
- * Requirement B: List of customers should also be their own component.
- * Exact match to the screenshots:
- * - Red bullet + red text for Priority: "• Customer #X (Y secs)" or "• ID : X | Y"
- * - Blue bullet + blue text for Normal: "• Customer #X (Y secs)" or "• ID : X | Y"
- * - Clean auto scrollbar only when items actually overflow
- */
 const CustomerList = ({
   customers = [],
   variant = 'waiting', // 'waiting' | 'cashier'
@@ -26,7 +17,7 @@ const CustomerList = ({
   }
 
   return (
-    <ul className="space-y-1.5 w-full text-left overflow-y-auto max-h-[140px] pr-1 custom-scrollbar">
+    <ul className="space-y-1.5 w-full text-left">
       {customers.map((customer) => {
         const isPriority = customer.type === 'Priority';
         const colorClass = isPriority ? 'text-[#ff0000]' : 'text-[#0000ff]';

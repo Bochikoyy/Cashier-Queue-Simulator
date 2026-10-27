@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import CustomerList from './CustomerList';
 
-/**
- * Requirement A: Cashiers should be their own component.
- * Fixed-height card with scrollable customer queue.
- */
 const Cashier = ({
   cashier,
   isPaused,
@@ -14,7 +10,7 @@ const Cashier = ({
 }) => {
   const { id, name, type, currentCustomer, queue } = cashier;
 
-  // Local state for countdown ticking
+
   const [remainingTime, setRemainingTime] = useState(
     currentCustomer ? currentCustomer.serviceTime : 0
   );
@@ -22,14 +18,12 @@ const Cashier = ({
     currentCustomer ? currentCustomer.id : null
   );
 
-  // Automatically serve next from queue when idle
   useEffect(() => {
     if (!currentCustomer && queue.length > 0) {
       onServeNext(id);
     }
   }, [currentCustomer, queue.length, id, onServeNext]);
 
-  // Synchronize when customer changes
   useEffect(() => {
     if (currentCustomer) {
       setRemainingTime(currentCustomer.serviceTime);
@@ -40,7 +34,6 @@ const Cashier = ({
     }
   }, [currentCustomer]);
 
-  // Active countdown timer
   useEffect(() => {
     if (!currentCustomer || isPaused) return;
 
@@ -57,7 +50,6 @@ const Cashier = ({
     return () => clearInterval(timer);
   }, [currentCustomer, isPaused, tickSpeedMs]);
 
-  // Handle completion when remainingTime reaches 0
   useEffect(() => {
     if (
       currentCustomer &&
@@ -69,16 +61,13 @@ const Cashier = ({
   }, [remainingTime, currentCustomer, activeCustomerId, id, onCustomerCompleted]);
 
   return (
-    <div className="flex flex-col items-center w-full min-w-[150px] max-w-[210px]">
-      {/* Cashier Title above box */}
+    <div className="flex flex-col items-center w-full min-w-37.5 max-w-52.5">
       <h3 className="font-bold text-[#1f2937] text-sm sm:text-base mb-2 text-center">
         {name}
       </h3>
 
-      {/* Outer Card with fixed height so layout never expands or shifts */}
-      <div className="w-full h-[230px] border border-gray-300 rounded-md p-3 bg-white flex flex-col items-center shadow-none">
-        {/* Inner Counter Box - Fixed height */}
-        <div className="w-full h-[52px] border border-gray-400 rounded-md p-1.5 bg-white text-center flex flex-col items-center justify-center shrink-0">
+      <div className="w-full h-57.5 border border-gray-300 rounded-md p-3 bg-white flex flex-col items-center shadow-none">
+        <div className="w-full h-13 border border-gray-400 rounded-md p-1.5 bg-white text-center flex flex-col items-center justify-center shrink-0">
           {currentCustomer ? (
             <div className="text-[12px] text-gray-700 leading-snug">
               <div>Now serving: Customer {currentCustomer.id}</div>
@@ -91,7 +80,6 @@ const Cashier = ({
           )}
         </div>
 
-        {/* Queue section inside the card - Scrollable list */}
         <div className="w-full mt-2.5 flex-1 flex flex-col items-center min-h-0">
           <span className="text-xs text-gray-700 mb-1.5 font-normal shrink-0">
             Queue

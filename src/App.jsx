@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import {useState, useEffect, useCallback } from 'react';
 import Cashier from './components/Cashier';
 import CustomerList from './components/CustomerList';
 
-// Initial Cashiers Configuration: 1 Priority Cashier and 2 Regular Cashiers
 const createInitialCashiers = () => [
   {
     id: 1,
@@ -30,14 +29,7 @@ const createInitialCashiers = () => [
   }
 ];
 
-/**
- * Pure helper function to compute how a single customer is assigned to the cashiers array.
- * Requirements:
- * 1. Single customer assignment to Cashier
- * 2. Should be assigned to matching cashier type
- * 3. If priority cashier is empty, normal customer can be served
- * 4. Customers will always queue to the shortest queue for their customer type
- */
+
 const assignCustomerToCashiers = (cashiersList, customer) => {
   const getCashierLoad = (cashier) =>
     (cashier.currentCustomer ? 1 : 0) + cashier.queue.length;
@@ -48,7 +40,6 @@ const assignCustomerToCashiers = (cashiersList, customer) => {
   let targetCashierId = null;
 
   if (customer.type === 'Priority') {
-    // Priority customers always queue to Priority Cashier(s)
     const priorityCashiers = cashiersList.filter((c) => c.type === 'Priority');
     let shortest = priorityCashiers[0];
     for (const c of priorityCashiers) {
@@ -58,8 +49,6 @@ const assignCustomerToCashiers = (cashiersList, customer) => {
     }
     targetCashierId = shortest.id;
   } else {
-    // Normal customer:
-    // Rule: "If priority cashier is empty, normal customer can be served"
     const emptyPriorityCashier = cashiersList.find(
       (c) => c.type === 'Priority' && isCashierEmpty(c)
     );
@@ -67,7 +56,6 @@ const assignCustomerToCashiers = (cashiersList, customer) => {
     if (emptyPriorityCashier) {
       targetCashierId = emptyPriorityCashier.id;
     } else {
-      // Normal customer chooses the Regular Cashier with the shortest queue
       const regularCashiers = cashiersList.filter((c) => c.type === 'Regular');
       let shortest = regularCashiers[0];
       for (const c of regularCashiers) {
@@ -100,19 +88,11 @@ export default function App() {
   // useState hooks
   const [waitingQueue, setWaitingQueue] = useState([]);
   const [cashiers, setCashiers] = useState(createInitialCashiers);
-  // Start Customer ID with 1 as requested
   const [nextCustomerId, setNextCustomerId] = useState(1);
   const [isAssigningAll, setIsAssigningAll] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [tickSpeedMs, setTickSpeedMs] = useState(1000);
 
-  /**
-   * Requirement: Add Customer
-   * - Create customer and add to a waiting queue
-   * - Random service time from 5-100
-   * - Customer type Priority or Normal
-   * - Color code the customers (Priority = Red, Normal = Blue)
-   */
   const handleAddCustomer = useCallback(() => {
     const serviceTime = Math.floor(Math.random() * (100 - 5 + 1)) + 5;
     const type = Math.random() < 0.5 ? 'Priority' : 'Normal';
@@ -127,12 +107,6 @@ export default function App() {
     setNextCustomerId((prev) => prev + 1);
   }, [nextCustomerId]);
 
-  /**
-   * Requirement: Assign Customer
-   * - Single customer assignment to Cashier
-   * - Should be assigned to matching cashier type
-   * - If priority cashier is empty, normal customer can be served
-   */
   const assignCustomer = useCallback(() => {
     if (waitingQueue.length === 0) return;
 
@@ -143,11 +117,6 @@ export default function App() {
     );
   }, [waitingQueue]);
 
-  /**
-   * Requirement: Assign All
-   * "Use the function from [assign customer] for each of the customers in queue"
-   * Controlled via isAssigningAll state and useEffect hook
-   */
   const handleAssignAllCustomer = useCallback(() => {
     if (waitingQueue.length === 0) return;
     setIsAssigningAll(true);
@@ -163,9 +132,6 @@ export default function App() {
     }
   }, [isAssigningAll, waitingQueue.length, assignCustomer]);
 
-  /**
-   * Automatically serve next queued customer when a cashier becomes idle
-   */
   const handleServeNext = useCallback((cashierId) => {
     setCashiers((prevCashiers) =>
       prevCashiers.map((cashier) => {
@@ -186,9 +152,6 @@ export default function App() {
     );
   }, []);
 
-  /**
-   * When a customer finishes their countdown
-   */
   const handleCustomerCompleted = useCallback((cashierId) => {
     setCashiers((prevCashiers) =>
       prevCashiers.map((cashier) => {
@@ -215,27 +178,20 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white text-black p-6 sm:p-10 flex flex-col items-center select-none font-sans">
-      
-      {/* Top Header: "Cashier Queue Simulator" */}
+
       <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6 text-center">
         Cashier Queue Simulator
       </h1>
 
-      {/* Main Single Outer Box with Black Border matching the PDF Wireframe */}
-      <div className="w-full max-w-[980px] border border-black bg-white p-4 sm:p-6 mb-6">
+      <div className="w-full max-w-245 border border-black bg-white p-4 sm:p-6 mb-6">
         
         <div className="flex flex-col lg:flex-row gap-6 items-start">
-          
-          {/* Left Block: Cyan Cashier Queue + Grey Waiting Queue with fixed height of 300px */}
-          <div className="flex shrink-0 w-full lg:w-[420px] h-[300px]">
-            
-            {/* Cyan Left Sub-block: Cashier Queue Title + Buttons */}
+          <div className="flex shrink-0 w-full lg:w-105 h-75">
             <div className="w-[68%] bg-[#00ffff] p-5 flex flex-col justify-between">
               <h2 className="text-3xl sm:text-4xl font-extrabold text-[#05445e] tracking-tight leading-tight mt-4">
                 Cashier Queue
               </h2>
 
-              {/* Offset Button Arrangement as shown in the mockup */}
               <div className="space-y-2 mb-2">
                 <div className="flex gap-2">
                   <button
@@ -252,7 +208,6 @@ export default function App() {
                     Assign Customer
                   </button>
                 </div>
-                {/* Indented / Centered Assign All Button */}
                 <div className="pl-6">
                   <button
                     onClick={handleAssignAllCustomer}
@@ -265,7 +220,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Grey Right Sub-block: Waiting Queue (scrollable only when overflowing) */}
             <div className="w-[32%] bg-[#cccccc] p-3 flex flex-col items-center">
               <h3 className="font-bold text-gray-800 text-sm sm:text-base text-center leading-tight mb-3 shrink-0">
                 Waiting<br />Queue
@@ -279,16 +233,13 @@ export default function App() {
                 />
               </div>
             </div>
-
           </div>
 
-          {/* Right Block: Cashiers Section */}
           <div className="flex-1 w-full flex flex-col">
             <h2 className="text-base sm:text-lg font-bold text-gray-800 text-center mb-4">
               Cashiers
             </h2>
 
-            {/* 3 Cashiers Row */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-start justify-items-center">
               {cashiers.map((cashier) => (
                 <Cashier
@@ -302,13 +253,10 @@ export default function App() {
               ))}
             </div>
           </div>
-
         </div>
-
       </div>
 
-      {/* Control strip for testing ease */}
-      <div className="w-full max-w-[980px] flex items-center justify-between text-xs text-gray-500 px-1">
+      <div className="w-full max-w-245 flex items-center justify-between text-xs text-gray-500 px-1">
         <div className="flex items-center gap-2">
           <span>Simulation Speed:</span>
           <button
